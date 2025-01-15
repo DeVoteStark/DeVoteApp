@@ -25,7 +25,8 @@
     "format": "yarn workspace @ss-2/nextjs format && yarn workspace @ss-2/snfoundry format",
     "format:check": "yarn workspace @ss-2/nextjs format:check && yarn workspace @ss-2/snfoundry format:check",
     "prepare": "husky",
-    "verify": "yarn workspace @ss-2/snfoundry verify"
+    "verify": "yarn workspace @ss-2/snfoundry verify",
+    "mint": "curl -d '{\"amount\":999998646000000000, \"address\":\"0x02c389a7b82705d5e717dc68111a0b5f3fc48bfb99fcc4c3582708afaf39cf17\"}' -H \"Content-Type: application/json\" -X POST http://localhost:5050/mint"
   },
   "packageManager": "yarn@3.2.3",
   "devDependencies": {

@@ -5,30 +5,44 @@
 
 const deployedContracts = {
   devnet: {
-    YourContract: {
+    DeVote: {
       address:
-        "0xb270539136fe69e57e08871fd224998699231196a565ce1e2494af9dfef84c",
+        "0x605ca49b0059852babbfb4349212e13d3ada7b7a7f9255132f2aa3d654dc6b1",
       abi: [
         {
           type: "impl",
-          name: "YourContractImpl",
-          interface_name: "contracts::YourContract::IYourContract",
+          name: "DeVoteImpl",
+          interface_name: "contracts::DeVote::IDeVote",
         },
         {
           type: "struct",
-          name: "core::byte_array::ByteArray",
+          name: "contracts::DeVote::PersonPublic",
           members: [
             {
-              name: "data",
-              type: "core::array::Array::<core::bytes_31::bytes31>",
+              name: "wallet_id",
+              type: "core::starknet::contract_address::ContractAddress",
             },
             {
-              name: "pending_word",
+              name: "id_number",
               type: "core::felt252",
             },
             {
-              name: "pending_word_len",
-              type: "core::integer::u32",
+              name: "role",
+              type: "core::felt252",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::DeVote::PersonProposalStruct",
+          members: [
+            {
+              name: "proposal_id",
+              type: "core::felt252",
+            },
+            {
+              name: "role",
+              type: "core::integer::u8",
             },
           ],
         },
@@ -61,82 +75,189 @@ const deployedContracts = {
           ],
         },
         {
-          type: "interface",
-          name: "contracts::YourContract::IYourContract",
-          items: [
+          type: "struct",
+          name: "contracts::DeVote::ProposalVoteTypeStruct",
+          members: [
             {
-              type: "function",
-              name: "greeting",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::byte_array::ByteArray",
-                },
-              ],
-              state_mutability: "view",
+              name: "vote_type",
+              type: "core::felt252",
             },
             {
-              type: "function",
-              name: "set_greeting",
-              inputs: [
-                {
-                  name: "new_greeting",
-                  type: "core::byte_array::ByteArray",
-                },
-                {
-                  name: "amount_eth",
-                  type: "core::integer::u256",
-                },
-              ],
-              outputs: [],
-              state_mutability: "external",
+              name: "count",
+              type: "core::integer::u256",
             },
             {
-              type: "function",
-              name: "withdraw",
-              inputs: [],
-              outputs: [],
-              state_mutability: "external",
-            },
-            {
-              type: "function",
-              name: "premium",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::bool",
-                },
-              ],
-              state_mutability: "view",
+              name: "is_active",
+              type: "core::bool",
             },
           ],
         },
         {
-          type: "impl",
-          name: "OwnableImpl",
-          interface_name: "openzeppelin_access::ownable::interface::IOwnable",
+          type: "struct",
+          name: "contracts::DeVote::ProposalVoterStruct",
+          members: [
+            {
+              name: "has_voted",
+              type: "core::bool",
+            },
+            {
+              name: "role",
+              type: "core::integer::u8",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::DeVote::ProposalPublic",
+          members: [
+            {
+              name: "id",
+              type: "core::felt252",
+            },
+            {
+              name: "name",
+              type: "core::felt252",
+            },
+            {
+              name: "state",
+              type: "core::integer::u8",
+            },
+            {
+              name: "total_voters",
+              type: "core::integer::u256",
+            },
+            {
+              name: "has_voted",
+              type: "core::integer::u256",
+            },
+            {
+              name: "type_votes",
+              type: "core::array::Array::<contracts::DeVote::ProposalVoteTypeStruct>",
+            },
+            {
+              name: "voter",
+              type: "contracts::DeVote::ProposalVoterStruct",
+            },
+          ],
         },
         {
           type: "interface",
-          name: "openzeppelin_access::ownable::interface::IOwnable",
+          name: "contracts::DeVote::IDeVote",
           items: [
             {
               type: "function",
-              name: "owner",
+              name: "create_new_person",
+              inputs: [
+                {
+                  name: "id_number",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "change_person_rol",
+              inputs: [
+                {
+                  name: "wallet_id",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "new_rol",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_person",
               inputs: [],
               outputs: [
                 {
-                  type: "core::starknet::contract_address::ContractAddress",
+                  type: "contracts::DeVote::PersonPublic",
                 },
               ],
               state_mutability: "view",
             },
             {
               type: "function",
-              name: "transfer_ownership",
+              name: "get_person_rol",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::felt252",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_person_id_number",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::felt252",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_person_proposals",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::array::Array::<contracts::DeVote::PersonProposalStruct>",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "create_proposal",
               inputs: [
                 {
-                  name: "new_owner",
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "name",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_proposal",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [
+                {
+                  type: "contracts::DeVote::ProposalPublic",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "add_voter",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "voter_id",
                   type: "core::starknet::contract_address::ContractAddress",
                 },
               ],
@@ -145,121 +266,242 @@ const deployedContracts = {
             },
             {
               type: "function",
-              name: "renounce_ownership",
-              inputs: [],
+              name: "modify_voters",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "wallet_id",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "role",
+                  type: "core::integer::u8",
+                },
+              ],
               outputs: [],
               state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "remove_voters",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "wallet_id",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "add_vote_type",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "vote_type",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "remove_vote_type",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "vote_type",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_vote_types",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::array::Array::<contracts::DeVote::ProposalVoteTypeStruct>",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "start_votation",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "vote",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+                {
+                  name: "vote_type",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "end_votation",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "view_votation",
+              inputs: [
+                {
+                  name: "proposal_id",
+                  type: "core::felt252",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::array::Array::<contracts::DeVote::ProposalVoteTypeStruct>",
+                },
+              ],
+              state_mutability: "view",
             },
           ],
         },
         {
           type: "constructor",
           name: "constructor",
-          inputs: [
-            {
-              name: "owner",
-              type: "core::starknet::contract_address::ContractAddress",
-            },
-          ],
+          inputs: [],
         },
         {
           type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          name: "contracts::DeVote::DeVote::PersonAdded",
           kind: "struct",
           members: [
             {
-              name: "previous_owner",
+              name: "wallet_id",
               type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-          kind: "struct",
-          members: [
-            {
-              name: "previous_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_owner",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-          kind: "enum",
-          variants: [
-            {
-              name: "OwnershipTransferred",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
-              kind: "nested",
-            },
-            {
-              name: "OwnershipTransferStarted",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
-              kind: "nested",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "contracts::YourContract::YourContract::GreetingChanged",
-          kind: "struct",
-          members: [
-            {
-              name: "greeting_setter",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_greeting",
-              type: "core::byte_array::ByteArray",
-              kind: "key",
-            },
-            {
-              name: "premium",
-              type: "core::bool",
               kind: "data",
             },
             {
-              name: "value",
-              type: "core::integer::u256",
+              name: "id_number",
+              type: "core::felt252",
+              kind: "key",
+            },
+            {
+              name: "role",
+              type: "core::felt252",
               kind: "data",
             },
           ],
         },
         {
           type: "event",
-          name: "contracts::YourContract::YourContract::Event",
+          name: "contracts::DeVote::DeVote::PersonUpdated",
+          kind: "struct",
+          members: [
+            {
+              name: "wallet_id_signer",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "wallet_id",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+            {
+              name: "role",
+              type: "core::felt252",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::DeVote::DeVote::UnauthorizeEvent",
+          kind: "struct",
+          members: [
+            {
+              name: "function_name",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "type_error",
+              type: "core::felt252",
+              kind: "data",
+            },
+            {
+              name: "wallet_id",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::DeVote::DeVote::Event",
           kind: "enum",
           variants: [
             {
-              name: "OwnableEvent",
-              type: "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
-              kind: "flat",
+              name: "PersonAdded",
+              type: "contracts::DeVote::DeVote::PersonAdded",
+              kind: "nested",
             },
             {
-              name: "GreetingChanged",
-              type: "contracts::YourContract::YourContract::GreetingChanged",
+              name: "PersonUpdated",
+              type: "contracts::DeVote::DeVote::PersonUpdated",
+              kind: "nested",
+            },
+            {
+              name: "UnauthorizeEvent",
+              type: "contracts::DeVote::DeVote::UnauthorizeEvent",
               kind: "nested",
             },
           ],
         },
       ],
       classHash:
-        "0x4e881db1286914119f2c900d19ab8fea1811614fdfa86d5f7539f7bc1c83e9c",
+        "0x305c079245ec1cb7fe7fcde9f0e0968515b4df5da52c814c87c77ffda86f31d",
     },
   },
 } as const;
