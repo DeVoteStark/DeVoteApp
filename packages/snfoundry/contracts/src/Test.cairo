@@ -57,10 +57,13 @@ pub struct ProposalPublic {
 }
 
 #[starknet::interface]
-trait IDeVote<ContractState> {    
+trait ITest<ContractState> {    
+    fn read_wallet_id(self: @ContractState) -> felt252;
     fn create_new_person(ref self: ContractState, wallet_id: felt252, id_number: felt252);
     fn change_person_rol(ref self: ContractState, wallet_id: felt252, new_rol: felt252);
     fn get_person(self: @ContractState, wallet_id: felt252) -> PersonPublic;
+    fn get_persona(self: @ContractState) -> PersonPublic;
+    fn get_persona_by_wallet(self: @ContractState) -> PersonPublic;
     fn get_person_proposals(self: @ContractState, wallet_id: felt252) -> Array<PersonProposalStruct>;
     fn create_proposal(ref self: ContractState, wallet_id: felt252, proposal_id: felt252, name: felt252);
     fn get_proposal(self: @ContractState, proposal_id: felt252) -> ProposalPublic;
@@ -77,8 +80,8 @@ trait IDeVote<ContractState> {
 }
 
 #[starknet::contract]
-mod DeVote {
-    use super::IDeVote;
+mod Test {
+    use super::ITest;
     use super::PersonProposalStruct;
     use super::PersonPublic;
     use super::Person;
@@ -94,7 +97,9 @@ mod DeVote {
     #[storage]
     struct Storage{
         persons: Map<felt252, Person>,
+        personas: Map<ContractAddress, Person>,
         proposals: Map<felt252, Proposal>,
+        last_wallet_id: felt252,
     }
 
     #[event]
@@ -103,6 +108,7 @@ mod DeVote {
         PersonAdded: PersonAdded,
         PersonUpdated: PersonUpdated,
         UnauthorizeEvent: UnauthorizeEvent,
+        GeneralEvent: GeneralEvent
     }
 
     #[derive(Drop, starknet::Event)]
@@ -132,20 +138,37 @@ mod DeVote {
     pub struct GeneralEvent {
         pub function_name: felt252,
         pub type_error: felt252,
-        pub wallet_id: ContractAddress,
+        pub wallet_id: felt252,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
 
     #[abi(embed_v0)]
-    impl DeVoteImpl of IDeVote<ContractState> {
+    impl TestImpl of ITest<ContractState> {
+
+        fn read_wallet_id(self: @ContractState) -> felt252 {
+            return self.last_wallet_id.read();
+        }
 
         fn create_new_person(ref self: ContractState, wallet_id: felt252, id_number: felt252) {
             let mut person = self.persons.entry(wallet_id);
             person.id_number.write(id_number);
             person.wallet_id.write(wallet_id);
-            person.role.write(0);
+            person.role.write(5);
+
+            let mut persona = self.personas.entry(get_caller_address());
+            persona.id_number.write(id_number);
+            persona.wallet_id.write(wallet_id);
+            persona.role.write(5);
+
+            let temp_wallet_id: felt252 = get_caller_address().into();
+            let mut person_1 = self.persons.entry(temp_wallet_id);
+            person_1.id_number.write(id_number);
+            person_1.wallet_id.write(temp_wallet_id);
+            person_1.role.write(5);
+
+            self.last_wallet_id.write(temp_wallet_id);
         }
 
         fn change_person_rol(ref self: ContractState, wallet_id: felt252, new_rol: felt252) {
@@ -158,6 +181,26 @@ mod DeVote {
             let person = self.persons.entry(wallet_id);
             return PersonPublic {
                 wallet_id: wallet_id,
+                id_number: person.id_number.read(),
+                role: person.role.read(),
+            };
+        }
+
+        fn get_persona(self: @ContractState) -> PersonPublic {
+            let wallet_id = get_caller_address();
+            let person = self.personas.entry(wallet_id);
+            return PersonPublic {
+                wallet_id: wallet_id.into(),
+                id_number: person.id_number.read(),
+                role: person.role.read(),
+            };
+        }
+
+        fn get_persona_by_wallet(self: @ContractState) -> PersonPublic {
+            let wallet_id: felt252 = get_caller_address().into();
+            let mut person = self.persons.entry(wallet_id);
+            return PersonPublic {
+                wallet_id: person.wallet_id.read(),
                 id_number: person.id_number.read(),
                 role: person.role.read(),
             };
@@ -222,6 +265,8 @@ mod DeVote {
                 proposal.total_voters.write(proposal.total_voters.read() + 1);
             } else {
                 self.emit(UnauthorizeEvent { function_name: 'add_voter', type_error: 'unauthorize', wallet_id: get_caller_address()});
+                self.emit(GeneralEvent {function_name: 'add_voter_into', type_error: 'unauthorize', wallet_id: get_caller_address().into()});
+                self.emit(GeneralEvent {function_name: 'add_voter_try_into', type_error: 'unauthorize', wallet_id: get_caller_address().try_into().unwrap()});
             }
         }
 

@@ -52,6 +52,12 @@ export const ReadOnlyFunctionForm = ({
   });
 
   useEffect(() => {
+    if (data) {
+      console.error(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
     if (error) {
       console.error(error?.message);
       console.error(error.stack);
