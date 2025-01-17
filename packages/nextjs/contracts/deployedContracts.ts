@@ -7,30 +7,12 @@ const deployedContracts = {
   devnet: {
     Test: {
       address:
-        "0x56725046cd5a93368516859fc3652146bb8534c768aeefd732b59a088274729",
+        "0x79384283fe8cb75a0942754c502edd823d7f617535b75c466146a421246ed4c",
       abi: [
         {
           type: "impl",
           name: "TestImpl",
           interface_name: "contracts::Test::ITest",
-        },
-        {
-          type: "struct",
-          name: "contracts::Test::PersonPublic",
-          members: [
-            {
-              name: "wallet_id",
-              type: "core::felt252",
-            },
-            {
-              name: "id_number",
-              type: "core::felt252",
-            },
-            {
-              name: "role",
-              type: "core::felt252",
-            },
-          ],
         },
         {
           type: "struct",
@@ -43,6 +25,28 @@ const deployedContracts = {
             {
               name: "role",
               type: "core::integer::u8",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::Test::PersonPublic",
+          members: [
+            {
+              name: "wallet_id",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "id_number",
+              type: "core::felt252",
+            },
+            {
+              name: "role",
+              type: "core::felt252",
+            },
+            {
+              name: "proposals",
+              type: "core::array::Array::<contracts::Test::PersonProposalStruct>",
             },
           ],
         },
@@ -94,6 +98,20 @@ const deployedContracts = {
         },
         {
           type: "struct",
+          name: "contracts::Test::ProposalVoterStruct",
+          members: [
+            {
+              name: "has_voted",
+              type: "core::bool",
+            },
+            {
+              name: "role",
+              type: "core::integer::u8",
+            },
+          ],
+        },
+        {
+          type: "struct",
           name: "contracts::Test::ProposalPublic",
           members: [
             {
@@ -120,6 +138,24 @@ const deployedContracts = {
               name: "type_votes",
               type: "core::array::Array::<contracts::Test::ProposalVoteTypeStruct>",
             },
+            {
+              name: "voter",
+              type: "contracts::Test::ProposalVoterStruct",
+            },
+          ],
+        },
+        {
+          type: "struct",
+          name: "contracts::Test::PersonIdStruct",
+          members: [
+            {
+              name: "wallet_id",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+            {
+              name: "id_number",
+              type: "core::felt252",
+            },
           ],
         },
         {
@@ -128,25 +164,10 @@ const deployedContracts = {
           items: [
             {
               type: "function",
-              name: "read_wallet_id",
-              inputs: [],
-              outputs: [
-                {
-                  type: "core::felt252",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
               name: "create_new_person",
               inputs: [
                 {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
-                {
-                  name: "id_number",
+                  name: "person_id",
                   type: "core::felt252",
                 },
               ],
@@ -158,7 +179,7 @@ const deployedContracts = {
               name: "change_person_rol",
               inputs: [
                 {
-                  name: "wallet_id",
+                  name: "id_number",
                   type: "core::felt252",
                 },
                 {
@@ -172,37 +193,32 @@ const deployedContracts = {
             {
               type: "function",
               name: "get_person",
-              inputs: [
+              inputs: [],
+              outputs: [
                 {
-                  name: "wallet_id",
+                  type: "contracts::Test::PersonPublic",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_person_rol",
+              inputs: [],
+              outputs: [
+                {
                   type: "core::felt252",
                 },
               ],
-              outputs: [
-                {
-                  type: "contracts::Test::PersonPublic",
-                },
-              ],
               state_mutability: "view",
             },
             {
               type: "function",
-              name: "get_persona",
+              name: "get_person_id_number",
               inputs: [],
               outputs: [
                 {
-                  type: "contracts::Test::PersonPublic",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
-              name: "get_persona_by_wallet",
-              inputs: [],
-              outputs: [
-                {
-                  type: "contracts::Test::PersonPublic",
+                  type: "core::felt252",
                 },
               ],
               state_mutability: "view",
@@ -210,12 +226,7 @@ const deployedContracts = {
             {
               type: "function",
               name: "get_person_proposals",
-              inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
-              ],
+              inputs: [],
               outputs: [
                 {
                   type: "core::array::Array::<contracts::Test::PersonProposalStruct>",
@@ -227,10 +238,6 @@ const deployedContracts = {
               type: "function",
               name: "create_proposal",
               inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
                 {
                   name: "proposal_id",
                   type: "core::felt252",
@@ -264,10 +271,6 @@ const deployedContracts = {
               name: "add_voter",
               inputs: [
                 {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
-                {
                   name: "proposal_id",
                   type: "core::felt252",
                 },
@@ -284,15 +287,11 @@ const deployedContracts = {
               name: "modify_voters",
               inputs: [
                 {
-                  name: "owner_wallet_id",
-                  type: "core::felt252",
-                },
-                {
                   name: "proposal_id",
                   type: "core::felt252",
                 },
                 {
-                  name: "wallet_id",
+                  name: "voter_id",
                   type: "core::felt252",
                 },
                 {
@@ -308,15 +307,11 @@ const deployedContracts = {
               name: "remove_voters",
               inputs: [
                 {
-                  name: "owner_wallet_id",
-                  type: "core::felt252",
-                },
-                {
                   name: "proposal_id",
                   type: "core::felt252",
                 },
                 {
-                  name: "wallet_id",
+                  name: "voter_id",
                   type: "core::felt252",
                 },
               ],
@@ -327,10 +322,6 @@ const deployedContracts = {
               type: "function",
               name: "add_vote_type",
               inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
                 {
                   name: "proposal_id",
                   type: "core::felt252",
@@ -347,10 +338,6 @@ const deployedContracts = {
               type: "function",
               name: "remove_vote_type",
               inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
                 {
                   name: "proposal_id",
                   type: "core::felt252",
@@ -384,10 +371,6 @@ const deployedContracts = {
               name: "start_votation",
               inputs: [
                 {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
-                {
                   name: "proposal_id",
                   type: "core::felt252",
                 },
@@ -399,10 +382,6 @@ const deployedContracts = {
               type: "function",
               name: "vote",
               inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
                 {
                   name: "proposal_id",
                   type: "core::felt252",
@@ -419,10 +398,6 @@ const deployedContracts = {
               type: "function",
               name: "end_votation",
               inputs: [
-                {
-                  name: "wallet_id",
-                  type: "core::felt252",
-                },
                 {
                   name: "proposal_id",
                   type: "core::felt252",
@@ -443,6 +418,28 @@ const deployedContracts = {
               outputs: [
                 {
                   type: "core::array::Array::<contracts::Test::ProposalVoteTypeStruct>",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "view_person_list",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::array::Array::<contracts::Test::PersonIdStruct>",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_all_person_ids",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::array::Array::<contracts::Test::PersonIdStruct>",
                 },
               ],
               state_mutability: "view",
@@ -488,7 +485,7 @@ const deployedContracts = {
             },
             {
               name: "wallet_id",
-              type: "core::felt252",
+              type: "core::starknet::contract_address::ContractAddress",
               kind: "data",
             },
             {
@@ -522,28 +519,6 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "contracts::Test::Test::GeneralEvent",
-          kind: "struct",
-          members: [
-            {
-              name: "function_name",
-              type: "core::felt252",
-              kind: "data",
-            },
-            {
-              name: "type_error",
-              type: "core::felt252",
-              kind: "data",
-            },
-            {
-              name: "wallet_id",
-              type: "core::felt252",
-              kind: "data",
-            },
-          ],
-        },
-        {
-          type: "event",
           name: "contracts::Test::Test::Event",
           kind: "enum",
           variants: [
@@ -562,16 +537,11 @@ const deployedContracts = {
               type: "contracts::Test::Test::UnauthorizeEvent",
               kind: "nested",
             },
-            {
-              name: "GeneralEvent",
-              type: "contracts::Test::Test::GeneralEvent",
-              kind: "nested",
-            },
           ],
         },
       ],
       classHash:
-        "0x24175e7c7d7c6a9a23e8c20b790abcd25fc31b60320cb234ca42b626a2a45f3",
+        "0x2389da35f52aaa5d489665909cdf3763783e960ecf81814c3a9e1482dc4d53a",
     },
   },
 } as const;
