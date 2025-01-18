@@ -1,0 +1,6 @@
+{
+  "/voting/[id]/page": "app/voting/[id]/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/upcoming/page": "app/upcoming/page.js",
+  "/api/votes/start/route": "app/api/votes/start/route.js"
+}
